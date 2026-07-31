@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鎴愮涔嬭矾</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f5f6fa; --card-bg: #fff;
+  --text: #1e1e2e; --text2: #6b7280; --border: #e5e7eb;
+  --primary: #4f46e5; --primary-light: #eef2ff;
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+  --radius: 12px; --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+  color: white; padding: 20px 28px;
+  box-shadow: 0 4px 24px rgba(79,70,229,0.25);
+  position: sticky; top: 0; z-index: 100;
+}
+.header-inner {
+  max-width: 1300px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+}
+.header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+.header-right { display: flex; gap: 6px; }
+
+/* Tabs */
+.tab-nav {
+  display: flex; gap: 4px; background: white; padding: 5px;
+  border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px;
+  position: sticky; top: 80px; z-index: 99;
+}
+.tab-btn {
+  flex: 1; padding: 12px 16px; border: none; background: transparent;
+  border-radius: 9px; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; color: var(--text2); font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text); background: rgba(79,70,229,0.05); }
+.tab-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
+
+/* Container */
+.container { max-width: 1300px; margin: 0 auto; padding: 0 28px 40px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 9px 18px; border: none; border-radius: var(--radius-sm);
+  font-size: 0.87rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; font-family: inherit; white-space: nowrap;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #4338ca; }
+.btn-outline { background: white; color: var(--text); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm { padding: 5px 12px; font-size: 0.78rem; border-radius: 6px; }
+.btn-xs { padding: 3px 8px; font-size: 0.7rem; border-radius: 5px; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-ghost { background: transparent; color: var(--text2); padding: 5px 8px; cursor: pointer; border: none; font-family: inherit; }
+.btn-ghost:hover { color: var(--text); }
+.header .btn { background: rgba(255,255,255,0.12); color: white; border: none; }
+.header .btn:hover { background: rgba(255,255,255,0.22); }
+
+/* Cards */
+.card {
+  background: var(--card-bg); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  border: 1px solid var(--border); transition: all 0.2s;
+}
+.card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.card-header h2 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+/* Form Elements */
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: var(--text2); }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 0.88rem; font-family: inherit;
+  transition: border-color 0.2s; background: #fafbfc;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.08); background: white;
+}
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* Study Tab Layout */
+.study-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.study-left, .study-right { display: flex; flex-direction: column; gap: 20px; }
+
+/* Log list */
+.log-list { max-height: 400px; overflow-y: auto; }
+.log-item {
+  padding: 12px; border-bottom: 1px solid var(--border);
+  transition: background 0.15s; font-size: 0.85rem;
+}
+.log-item:last-child { border-bottom: none; }
+.log-item:hover { background: #fafbfc; }
+.log-item .log-meta {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
+}
+.log-item .log-date { font-weight: 700; color: var(--primary); }
+.log-item .log-hours {
+  font-size: 0.78rem; background: var(--primary-light); color: var(--primary);
+  padding: 2px 10px; border-radius: 10px; font-weight: 600;
+}
+.log-item .log-section { margin-top: 4px; }
+.log-item .log-section strong { font-size: 0.78rem; color: var(--text2); display: block; margin-bottom: 1px; }
+.log-item .log-section p { font-size: 0.82rem; margin: 0; }
+.log-item .log-del {
+  opacity: 0; transition: opacity 0.2s; font-size: 0.75rem; color: var(--danger); cursor: pointer; border: none; background: none;
+}
+.log-item:hover .log-del { opacity: 1; }
+
+/* Exam Cards */
+.exam-card { margin-bottom: 0; }
+.exam-add-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+.exam-add-row .form-group { flex: 1; min-width: 80px; margin-bottom: 0; }
+.exam-score-list { font-size: 0.84rem; }
+.exam-score-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.exam-score-row:last-child { border-bottom: none; }
+.exam-score-row .score { font-weight: 700; color: var(--primary); }
+.chart-box { height: 200px; margin-top: 12px; position: relative; }
+
+/* Workbook */
+.wb-card { margin-bottom: 14px; }
+.wb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.wb-header h4 { font-size: 0.92rem; }
+.progress-bar-outer { height: 10px; background: #f3f4f6; border-radius: 5px; overflow: hidden; margin-bottom: 4px; }
+.progress-bar-inner { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #6366f1, #8b5cf6); transition: width 0.4s; }
+.wb-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text2); }
+.wb-actions { display: flex; gap: 4px; margin-top: 8px; }
+.chapter-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+.chapter-dot {
+  width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  background: white; color: var(--text2);
+}
+.chapter-dot:hover { border-color: var(--primary); }
+.chapter-dot.done { background: var(--success); border-color: var(--success); color: white; }
+
+/* Weight Tab */
+.weight-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+.weight-input-card { text-align: center; }
+.weight-display { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 10px 0; }
+.weight-display .unit { font-size: 1.2rem; color: var(--text2); font-weight: 600; }
+.weight-target { font-size: 0.9rem; color: var(--text2); margin-bottom: 16px; }
+.weight-to-go {
+  font-size: 0.95rem; font-weight: 700; padding: 6px 16px; border-radius: 20px; display: inline-block;
+}
+.weight-to-go.lose { background: #fef3c7; color: #d97706; }
+.weight-to-go.win { background: #d1fae5; color: #059669; }
+.weight-quick-input { display: flex; gap: 8px; margin-top: 14px; }
+.weight-quick-input input { flex: 1; font-size: 1.1rem; text-align: center; }
+.weight-chart-box { height: 280px; position: relative; }
+.weight-history { max-height: 300px; overflow-y: auto; margin-top: 14px; }
+.weight-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+}
+.weight-row .w-change { font-weight: 700; }
+.weight-row .w-change.down { color: var(--success); }
+.weight-row .w-change.up { color: var(--danger); }
+
+/* Habit Tab */
+.habit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.habit-card { text-align: center; }
+.habit-stats { display: flex; gap: 8px; margin: 12px 0; }
+.habit-stat {
+  flex: 1; padding: 10px 6px; background: #f8fafc; border-radius: var(--radius-sm);
+}
+.habit-stat .hs-val { font-size: 1.3rem; font-weight: 800; }
+.habit-stat .hs-label { font-size: 0.7rem; color: var(--text2); }
+.habit-calendar { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.habit-w-row { display: flex; gap: 2px; }
+.habit-d-header { width: 30px; height: 18px; font-size: 0.6rem; color: var(--text2); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.habit-day {
+  width: 30px; height: 30px; border-radius: 5px; border: 1.5px solid var(--border);
+  background: white; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 600; color: var(--text2);
+}
+.habit-day:hover { border-color: var(--primary); background: var(--primary-light); }
+.habit-day.done { background: var(--success); border-color: var(--success); color: white; }
+.habit-day.today { border-color: var(--primary); border-width: 2.5px; }
+.habit-day.future { opacity: 0.25; cursor: default; pointer-events: none; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px); display: flex; align-items: center;
+  justify-content: center; z-index: 1000; animation: fadeIn 0.2s;
+}
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } }
+.modal {
+  background: white; border-radius: var(--radius); padding: 28px;
+  max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: slideUp 0.25s;
+}
+.modal h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 18px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+/* Empty state */
+.empty { text-align: center; padding: 50px 20px; color: var(--text2); }
+.empty .icon { font-size: 3rem; margin-bottom: 10px; }
+.empty h3 { color: var(--text); margin-bottom: 4px; }
+
+/* Toast */
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: #1e1e2e; color: white; padding: 10px 16px; border-radius: var(--radius-sm);
+  font-size: 0.84rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: slideIn 0.3s; max-width: 320px;
+}
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } }
+.toast.ok { border-left: 3px solid var(--success); }
+.toast.err { border-left: 3px solid var(--danger); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .study-layout, .weight-layout { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .form-row-3 { grid-template-columns: 1fr; }
+  .container { padding: 0 14px 30px; }
+  .tab-btn { font-size: 0.78rem; padding: 10px 8px; }
+}
+
+/* Expand card */
+.expand-toggle { cursor: pointer; font-size: 0.82rem; color: var(--primary); font-weight: 600; }
+.expand-toggle:hover { text-decoration: underline; }
+.collapsed-content { display: none; }
+.collapsed-content.show { display: block; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <h1>馃敟 鎴愮涔嬭矾 <span id="liveClock" style="font-size:0.82rem;font-weight:600;color:#1e293b;background:#f1f5f9;padding:4px 12px;border-radius:6px;margin-left:10px;font-variant-numeric:tabular-nums"></span></h1>
+    <div class="header-right">
+      <button class="btn btn-sm" onclick="exportData()">馃摜 瀵煎嚭澶囦唤</button>
+      <button class="btn btn-sm" onclick="document.getElementById('importFile').click()">馃摛 瀵煎叆</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-sm" onclick="resetAll()">馃棏 娓呯┖</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="study">馃摎 瀛︿範璁板綍</button>
+    <button class="tab-btn" data-tab="weight">鈿栵笍 浣撻噸绠＄悊</button>
+    <button class="tab-btn" data-tab="habit">鉁?涔犳儻鎵撳崱</button>
+    <button class="tab-btn" data-tab="finance">馃挵 璐㈠姟绠＄悊</button>
+  </nav>
+
+  <!-- ========== STUDY TAB ========== -->
+  <div class="tab-panel active" id="panelStudy">
+    <div class="study-layout">
+      <!-- Left Column -->
+      <div class="study-left">
+        <!-- Daily Study Log Form -->
+        <div class="card">
+          <div class="card-header"><h2>馃摑 姣忔棩瀛︿範璁板綍</h2></div>
+          <form id="studyLogForm" onsubmit="saveStudyLog(event)">
+            <div class="form-row">
+              <div class="form-group"><label>鏃ユ湡 *</label><input type="date" id="slDate" required></div>
+              <div class="form-group"><label>瀛︿範鏃堕暱锛堝皬鏃讹級</label><input type="number" id="slHours" min="0" step="0.5" placeholder="濡?3.5"></div>
+            </div>
+            <div class="form-group"><label>琛屾祴瀛︿範鍐呭</label><textarea id="slXingce" rows="2" placeholder="濡傦細璧勬枡鍒嗘瀽 鍩烘湡涓庣幇鏈熴€佸闀块噺璁＄畻鈥?></textarea></div>
+            <div class="form-group"><label>鐢宠瀛︿範鍐呭</label><textarea id="slShenlun" rows="2" placeholder="濡傦細姒傛嫭褰掔撼棰?缁冧範2绡囥€佽寖鏂囩簿璇烩€?></textarea></div>
+            <div class="form-group"><label>澶囨敞</label><input type="text" id="slNote" placeholder="鍏朵粬鎯宠褰曠殑鈥?></div>
+            <button type="submit" class="btn btn-primary">馃捑 淇濆瓨璁板綍</button>
+          </form>
+        </div>
+
+        <!-- Study History -->
+        <div class="card">
+          <div class="card-header">
+            <h2>馃搵 瀛︿範鍘嗗彶</h2>
+            <span style="font-size:0.8rem;color:var(--text2)" id="studyLogCount"></span>
+          </div>
+          <div class="log-list" id="studyLogList">
+            <div class="empty"><div class="icon">馃摥</div><h3>杩樻病鏈夊涔犺褰?/h3><p>鍦ㄤ笂鏂瑰～鍐欎粖澶╃殑瀛︿範鍐呭寮€濮嬭褰?/p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="study-right">
+        <!-- 绮夌瑪妯¤€?-->
+        <div class="card exam-card">
+          <div class="card-header"><h2>馃搳 绮夌瑪妯¤€?/h2><span style="font-size:0.78rem;color:var(--text2)">姣忓懆鏃ヤ笂鍗?/span></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+            <span style="font-size:0.75rem;color:var(--text2)">鐩爣:</span>
+            <span style="font-size:0.75rem;color:var(--primary)">琛屾祴</span><input type="number" id="mkTargetXC" value="70" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
+            <span style="font-size:0.75rem;color:#f59e0b">鐢宠</span><input type="number" id="mkTargetSL" value="65" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
+          </div>
+          <div id="mkMilestoneAdd" style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+            <input type="date" id="mkMsDate" style="padding:3px 6px;font-size:0.72rem;min-width:110px">
+            <input type="number" id="mkMsXC" placeholder="琛屾祴鐩爣" min="0" max="100" step="1" style="width:70px;padding:3px 6px;font-size:0.72rem">
+            <input type="number" id="mkMsSL" placeholder="鐢宠鐩爣" min="0" max="100" step="1" style="width:70px;padding:3px 6px;font-size:0.72rem">
+            <button class="btn btn-primary btn-sm" onclick="addMockMilestone()" style="font-size:0.72rem;padding:3px 8px">+ 闃舵鐩爣</button>
+          </div>
+          <div id="mkMilestoneList" style="margin-bottom:6px;font-size:0.72rem"></div>
+          <div class="exam-add-row">
+            <div class="form-group"><input type="date" id="mkDate" style="min-width:120px"></div>
+            <div class="form-group"><input type="number" id="mkXc" placeholder="琛屾祴" min="0" max="100" step="0.1"></div>
+            <div class="form-group"><input type="number" id="mkSl" placeholder="鐢宠" min="0" max="100" step="0.1"></div>
+            <button class="btn btn-primary btn-sm" onclick="addMockExam()">+ 娣诲姞</button>
+          </div>
+          <div class="chart-box"><canvas id="mockChart"></canvas></div>
+          <div id="mockExamList" style="margin-top:8px"></div>
+        </div>
+
+        <!-- 鐪熼鍗峰瓙 -->
+        <div class="card exam-card">
+          <div class="card-header"><h2>馃搫 鐪熼鍗峰瓙</h2></div>
+          <div class="exam-add-row">
+            <div class="form-group"><input type="date" id="reDate" style="min-width:120px"></div>
+            <div class="form-group"><input type="text" id="reName" placeholder="璇曞嵎鍚嶇О" style="min-width:100px"></div>
+            <div class="form-group">
+              <select id="reType"><option value="琛屾祴">琛屾祴</option><option value="鐢宠">鐢宠</option></select>
+            </div>
+            <div class="form-group"><input type="number" id="reScore" placeholder="鍒嗘暟" min="0" max="100" step="0.1"></div>
+            <button class="btn btn-primary btn-sm" onclick="addRealExam()">+ 娣诲姞</button>
+          </div>
+          <div class="chart-box"><canvas id="realChart"></canvas></div>
+          <div id="realExamList" style="margin-top:8px"></div>
+        </div>
+
+        <!-- 涔犻鍐?-->
+        <div class="card">
+          <div class="card-header">
+            <h2>馃摎 涔犻鍐?/h2>
+            <button class="btn btn-outline btn-sm" onclick="showAddWorkbook()">+ 娣诲姞涔犻鍐?/button>
+          </div>
+          <div id="workbookList">
+            <div class="empty"><div class="icon">馃摉</div><p>鏆傛棤涔犻鍐岋紝鐐瑰嚮涓婃柟鎸夐挳娣诲姞</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== WEIGHT TAB ========== -->
+  <div class="tab-panel" id="panelWeight">
+    <div class="weight-layout">
+      <!-- Left: Input only -->
+      <div class="card weight-input-card">
+        <h3 style="margin-bottom:4px">鈿栵笍 浠婃棩浣撻噸</h3>
+        <div class="weight-display" id="currentWeight">--<span class="unit">鏂?/span></div>
+        <div id="weightToGo"></div>
+        <div class="weight-quick-input">
+          <input type="date" id="weightDate" style="width:120px;font-size:0.8rem;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;">
+          <input type="number" id="weightInput" placeholder="杈撳叆浣撻噸" step="0.1" min="50" max="300">
+          <button class="btn btn-primary" onclick="addWeight()">璁板綍</button>
+        </div>
+        <div style="margin-top:12px">
+          <div class="weight-row" style="justify-content:center;gap:20px;font-size:0.82rem;color:var(--text2);border:none">
+            <span id="weightWeekChange">鏈懆 --</span>
+            <span id="weightMonthChange">鏈湀 --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Chart + Goal Settings -->
+      <div class="card">
+        <div class="card-header">
+          <h2>馃搱 浣撻噸瓒嬪娍 & 鐩爣</h2>
+          <button class="btn btn-outline btn-sm" id="goalToggleBtn" onclick="toggleGoalPanel()">鈿欙笍 鐩爣璁剧疆</button>
+        </div>
+
+        <!-- Goal Settings Panel (collapsible) -->
+        <div id="goalPanel" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:10px">
+          <!-- Final Target -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:0.82rem;font-weight:700;white-space:nowrap">馃弫 鏈€缁堢洰鏍?/span>
+            <input type="number" id="targetWeightInput" value="170" min="50" max="300" step="0.1"
+              style="width:64px;text-align:center;font-weight:700;font-size:0.82rem;padding:4px;border:1.5px solid var(--border);border-radius:4px" onchange="updateTarget()">
+            <span style="font-size:0.78rem;color:var(--text2)">鏂?/span>
+            <span style="font-size:0.78rem;color:var(--text2)">鎴</span>
+            <input type="date" id="weightDeadlineInput"
+              style="width:120px;font-size:0.78rem;padding:4px;border:1.5px solid var(--border);border-radius:4px" onchange="updateDeadline()">
+          </div>
+
+          <!-- Milestones -->
+          <div style="border-top:1px solid var(--border);padding-top:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:0.82rem;font-weight:700">馃幆 闃舵鎬х洰鏍?/span>
+              <button class="btn btn-outline btn-sm" onclick="showAddMilestone()">+ 娣诲姞</button>
+            </div>
+            <div id="milestoneList" style="font-size:0.78rem"></div>
+            <div id="addMilestoneForm" style="display:none;background:#fff;border-radius:6px;padding:6px;margin-top:4px">
+              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                <input type="date" id="msDate" style="width:115px;font-size:0.76rem;padding:3px;border:1px solid var(--border);border-radius:4px">
+                <input type="number" id="msWeight" placeholder="鏂? step="0.1" min="50" max="300" style="width:56px;font-size:0.76rem;padding:3px;border:1px solid var(--border);border-radius:4px">
+                <button class="btn btn-primary btn-sm" onclick="addMilestone()">纭</button>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('addMilestoneForm').style.display='none'">鍙栨秷</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pace tracker bar -->
+
+        <div class="weight-chart-box"><canvas id="weightChart"></canvas></div>
+        <div class="weight-history" id="weightHistory">
+          <div class="empty"><p>鏆傛棤璁板綍</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FINANCE TAB ========== -->
+  <div class="tab-panel" id="panelFinance">
+    <div class="study-layout">
+      <div class="study-left">
+        <!-- Quick Add -->
+        <div class="card">
+          <div class="card-header"><h2>馃捀 璁颁竴绗?/h2></div>
+          <div class="form-row">
+            <div class="form-group"><label>閲戦 *</label><input type="number" id="fxAmount" placeholder="鑺变簡澶氬皯" min="0.01" step="0.01" style="font-size:1.3rem;font-weight:700"></div>
+            <div class="form-group"><label>鏃ユ湡</label><input type="date" id="fxDate"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>鍒嗙被</label>
+              <select id="fxCategory">
+                <option value="椁愰ギ">馃崪 椁愰ギ</option><option value="浜ら€?>馃殞 浜ら€?/option><option value="璐墿">馃泹 璐墿</option>
+                <option value="濞变箰">馃幃 濞变箰</option><option value="姘寸數">馃挕 姘寸數</option><option value="閫氳">馃摫 閫氳</option>
+                <option value="鍖荤枟">馃拪 鍖荤枟</option><option value="浣忔埧">馃彔 浣忔埧</option><option value="瀛︿範">馃摎 瀛︿範</option>
+                <option value="浜烘儏">馃巵 浜烘儏</option><option value="鍏朵粬">鉁?鍏朵粬</option>
+              </select>
+            </div>
+            <div class="form-group"><label>澶囨敞</label><input type="text" id="fxNote" placeholder="涔颁簡浠€涔堚€?></div>
+          </div>
+          <button class="btn btn-primary" onclick="addExpense()" style="width:100%">馃捑 璁板綍</button>
+        </div>
+
+        <!-- Today & Month Summary -->
+        <div class="card">
+          <div class="card-header"><h2>馃搳 鏈湀缁熻</h2></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;margin-bottom:12px">
+            <div style="background:#f8fafc;border-radius:8px;padding:12px">
+              <div style="font-size:0.75rem;color:var(--text2)">浠婃棩</div>
+              <div style="font-size:1.4rem;font-weight:800;color:var(--danger)" id="fxToday">楼0</div>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:12px">
+              <div style="font-size:0.75rem;color:var(--text2)">鏈湀</div>
+              <div style="font-size:1.4rem;font-weight:800;color:var(--primary)" id="fxMonth">楼0</div>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:12px">
+              <div style="font-size:0.75rem;color:var(--text2)">鏃ュ潎</div>
+              <div style="font-size:1.4rem;font-weight:800;color:var(--text)" id="fxAvg">楼0</div>
+            </div>
+          </div>
+          <div id="fxCategoryBreakdown" style="font-size:0.8rem"></div>
+        </div>
+      </div>
+
+      <div class="study-right">
+        <!-- Category Chart -->
+        <div class="card">
+          <div class="card-header"><h2>馃崺 鍒嗙被鍒嗗竷锛堟湰鏈堬級</h2></div>
+          <div style="height:260px"><canvas id="categoryChart"></canvas></div>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+          <div class="card-header"><h2>馃搵 娑堣垂璁板綍</h2><span style="font-size:0.78rem;color:var(--text2)" id="fxTotalCount"></span></div>
+          <div class="log-list" id="expenseList" style="max-height:380px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== HABIT TAB ========== -->
+  <div class="tab-panel" id="panelHabit">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn btn-primary" onclick="showAddHabit()">+ 鏂板涔犳儻</button>
+    </div>
+    <div class="habit-grid" id="habitGrid"></div>
+  </div>
+</main>
+
+<!-- Modal: Add Habit -->
+<div class="modal-overlay" id="habitModal" style="display:none">
+  <div class="modal">
+    <h3>鉁?鏂板涔犳儻</h3>
+    <form onsubmit="addHabit(event)">
+      <div class="form-group"><label>涔犳儻鍚嶇О *</label><input type="text" id="habitName" required placeholder="濡傦細姣忓ぉ鍐ユ兂10鍒嗛挓" maxlength="20"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeHabitModal()">鍙栨秷</button>
+        <button type="submit" class="btn btn-primary">娣诲姞</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Add Workbook -->
+<div class="modal-overlay" id="wbModal" style="display:none">
+  <div class="modal">
+    <h3>馃摎 娣诲姞涔犻鍐?/h3>
+    <form onsubmit="saveWorkbook(event)">
+      <div class="form-row">
+        <div class="form-group"><label>鍚嶇О *</label><input type="text" id="wbName" required placeholder="濡傦細琛屾祴5000棰?璧勬枡鍒嗘瀽"></div>
+        <div class="form-group"><label>鎬荤珷鑺傛暟 *</label><input type="number" id="wbTotal" required min="1" value="10"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeWbModal()">鍙栨秷</button>
+        <button type="submit" class="btn btn-primary">娣诲姞</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ==================== DATA ====================
+const KEY = 'personal-tracker';
+const DEFAULT = {
+  studyLogs: [],
+  mockExams: [],
+  mockTargetXC: 70,
+  mockTargetSL: 65,
+  mockMilestones: [],
+  realExams: [],
+  workbooks: [],
+  weightLogs: [],
+  targetWeight: 170,
+  weightDeadline: null, // ISO date string
+  weightMilestones: [], // [{ id, date, weight }]
+  habits: [
+    { id: 'early_sleep', name: '鏃╃潯鏃╄捣' },
+    { id: 'no_fap', name: '涓嶈嚜鎱? },
+    { id: 'water', name: '鍠濇按3L' },
+    { id: 'no_eat', name: '19鐐瑰悗涓嶈繘椋? }
+  ],
+  habitEntries: {}, // { habitId: [{date, done}] }
+  expenses: [] // { id, date, amount, category, note }
+};
+
+function load() { try { const r = localStorage.getItem(KEY); return r ? { ...DEFAULT, ...JSON.parse(r) } : { ...DEFAULT }; } catch { return { ...DEFAULT }; } }
+function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function fmt(d) { if(!d) return ''; const dt = new Date(d); return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; }
+function today() { return new Date().toISOString().split('T')[0]; }
+function toast(m, t='ok') { const c=document.getElementById('toastContainer'); const d=document.createElement('div'); d.className=`toast ${t}`; d.textContent=m; c.appendChild(d); setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity 0.3s';setTimeout(()=>d.remove(),300)},2200); }
+
+// ==================== CHART HELPERS ====================
+const charts = {};
+function killChart(id) { if(charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+// ==================== STUDY LOG ====================
+function saveStudyLog(e) {
+  e.preventDefault();
+  const data = load();
+  const date = document.getElementById('slDate').value;
+  if (date > today()) { toast('涓嶈兘濉啓鏈潵鏃ユ湡', 'err'); return; }
+  const log = {
+    id: uid(),
+    date,
+    hours: parseFloat(document.getElementById('slHours').value) || 0,
+    xingce: document.getElementById('slXingce').value.trim(),
+    shenlun: document.getElementById('slShenlun').value.trim(),
+    note: document.getElementById('slNote').value.trim(),
+  };
+  if (!log.xingce && !log.shenlun) { toast('璇疯嚦灏戝～鍐欒娴嬫垨鐢宠鐨勪竴椤瑰唴瀹?, 'err'); return; }
+  data.studyLogs.unshift(log);
+  data.studyLogs.sort((a,b) => b.date.localeCompare(a.date) || data.studyLogs.indexOf(a) - data.studyLogs.indexOf(b));
+  save(data);
+  document.getElementById('slDate').value = today();
+  document.getElementById('slHours').value = '';
+  document.getElementById('slXingce').value = '';
+  document.getElementById('slShenlun').value = '';
+  document.getElementById('slNote').value = '';
+  renderAll();
+  toast('瀛︿範璁板綍宸蹭繚瀛?鉁?);
+}
+
+function deleteStudyLog(id) {
+  if (!confirm('鍒犻櫎杩欐潯瀛︿範璁板綍锛?)) return;
+  const data = load();
+  data.studyLogs = data.studyLogs.filter(l => l.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function renderStudyLogs(data) {
+  const list = document.getElementById('studyLogList');
+  document.getElementById('studyLogCount').textContent = `${data.studyLogs.length} 鏉¤褰昤;
+  if (data.studyLogs.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="icon">馃摥</div><h3>杩樻病鏈夊涔犺褰?/h3><p>鍦ㄥ乏渚у～鍐欎粖澶╃殑瀛︿範鍐呭寮€濮嬭褰?/p></div>';
+    return;
+  }
+  list.innerHTML = data.studyLogs.map(l => `
+    <div class="log-item">
+      <div class="log-meta">
+        <span class="log-date">馃搮 ${fmt(l.date)}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${l.hours ? `<span class="log-hours">鈴?${l.hours}h</span>` : ''}
+          <button class="log-del" onclick="deleteStudyLog('${l.id}')">馃棏</button>
+        </div>
+      </div>
+      ${l.xingce ? `<div class="log-section"><strong>馃敺 琛屾祴</strong><p>${esc(l.xingce)}</p></div>` : ''}
+      ${l.shenlun ? `<div class="log-section"><strong>馃敹 鐢宠</strong><p>${esc(l.shenlun)}</p></div>` : ''}
+      ${l.note ? `<div style="font-size:0.78rem;color:var(--text2);margin-top:2px">馃挰 ${esc(l.note)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ==================== MOCK EXAMS ====================
+function saveMockTargets() {
+  const data = load();
+  data.mockTargetXC = parseFloat(document.getElementById('mkTargetXC').value) || 70;
+  data.mockTargetSL = parseFloat(document.getElementById('mkTargetSL').value) || 65;
+  save(data);
+  renderMockExams(data);
+}
+
+function addMockMilestone() {
+  const data = load();
+  const date = document.getElementById('mkMsDate').value;
+  const xc = parseFloat(document.getElementById('mkMsXC').value);
+  const sl = parseFloat(document.getElementById('mkMsSL').value);
+  if (!date) { toast('璇烽€夋嫨鏃ユ湡', 'err'); return; }
+  if (isNaN(xc) && isNaN(sl)) { toast('璇疯嚦灏戣緭鍏ヤ竴涓洰鏍囧垎鏁?, 'err'); return; }
+  data.mockMilestones.push({ id: uid(), date, xingce: isNaN(xc) ? null : xc, shenlun: isNaN(sl) ? null : sl });
+  data.mockMilestones.sort((a,b) => a.date.localeCompare(b.date));
+  save(data);
+  document.getElementById('mkMsDate').value = ''; document.getElementById('mkMsXC').value = ''; document.getElementById('mkMsSL').value = '';
+  renderAll();
+  toast('闃舵鐩爣宸叉坊鍔?鉁?);
+}
+
+function deleteMockMilestone(id) {
+  if (!confirm('鍒犻櫎杩欎釜闃舵鐩爣锛?)) return;
+  const data = load();
+  data.mockMilestones = data.mockMilestones.filter(m => m.id !== id);
+  save(data); renderAll();
+}
+
+function addMockExam() {
+  const data = load();
+  const date = document.getElementById('mkDate').value || today();
+  if (date > today()) { toast('涓嶈兘濉啓鏈潵鏃ユ湡', 'err'); return; }
+  const xc = parseFloat(document.getElementById('mkXc').value);
+  const sl = parseFloat(document.getElementById('mkSl').value);
+  if (isNaN(xc) && isNaN(sl)) { toast('璇疯嚦灏戣緭鍏ヤ竴涓垎鏁?, 'err'); return; }
+  data.mockExams.push({ id: uid(), date, xingce: isNaN(xc) ? null : xc, shenlun: isNaN(sl) ? null : sl });
+  data.mockExams.sort((a,b) => a.date.localeCompare(b.date));
+  save(data);
+  document.getElementById('mkDate').value = ''; document.getElementById('mkXc').value = ''; document.getElementById('mkSl').value = '';
+  renderAll(); toast('妯¤€冩垚缁╁凡娣诲姞 鉁?);
+}
+
+function deleteMockExam(id) {
+  if (!confirm('鍒犻櫎杩欐潯妯¤€冭褰曪紵')) return;
+  const data = load();
+  data.mockExams = data.mockExams.filter(e => e.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function renderMockExams(data) {
+  const list = document.getElementById('mockExamList');
+  if (data.mockExams.length === 0) { list.innerHTML = ''; } else {
+    list.innerHTML = data.mockExams.map(e => `
+      <div class="exam-score-row">
+        <span>馃搮 ${fmt(e.date)}</span>
+        <span>琛屾祴 <b class="score">${e.xingce ?? '--'}</b> | 鐢宠 <b class="score">${e.shenlun ?? '--'}</b></span>
+        <button class="btn-ghost" onclick="deleteMockExam('${e.id}')" style="font-size:0.75rem;color:var(--danger)">馃棏</button>
+      </div>
+    `).join('');
+  }
+
+  // Milestone list
+  const msList = document.getElementById('mkMilestoneList');
+  const milestones = data.mockMilestones || [];
+  msList.innerHTML = milestones.map(m => `
+    <span class="ms-tag" style="display:inline-block;background:var(--bg2);padding:2px 6px;margin:2px;border-radius:4px;font-size:0.7rem">
+      馃搶 ${fmt(m.date)} 琛屾祴${m.xingce ?? '--'} 鐢宠${m.shenlun ?? '--'}
+      <button onclick="deleteMockMilestone('${m.id}')" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:0;font-size:0.7rem">鉁?/button>
+    </span>
+  `).join('');
+
+  // Chart
+  killChart('mockChart');
+  if (data.mockExams.length < 2) return;
+  const ctx = document.getElementById('mockChart');
+  if (!ctx) return;
+  const xcTarget = data.mockTargetXC || 70;
+  const slTarget = data.mockTargetSL || 65;
+
+  // Merge milestone dates into X-axis
+  const allMkDates = new Map();
+  data.mockExams.forEach(e => allMkDates.set(e.date, { xc: e.xingce, sl: e.shenlun }));
+  milestones.forEach(m => { if (!allMkDates.has(m.date)) allMkDates.set(m.date, { xc: null, sl: null }); });
+  const sortedMkDates = [...allMkDates.keys()].sort();
+  const chartLabels = sortedMkDates.map(d => d.slice(5));
+  const xcData = sortedMkDates.map(d => allMkDates.get(d).xc);
+  const slData = sortedMkDates.map(d => allMkDates.get(d).sl);
+
+  const mockOverlay = {
+    id: 'mockOverlay',
+    afterDraw(chart) {
+      const ys = chart.scales.y, xs = chart.scales.x;
+      if (!ys || !xs || ys.top === ys.bottom) return;
+      const drawCtx = chart.ctx;
+      const drawHLin = (value, color, label) => {
+        const y = ys.getPixelForValue(value);
+        if (y < ys.top || y > ys.bottom) return;
+        drawCtx.save();
+        drawCtx.beginPath();
+        drawCtx.setLineDash([6, 4]);
+        drawCtx.moveTo(xs.left, y);
+        drawCtx.lineTo(xs.right, y);
+        drawCtx.strokeStyle = color; drawCtx.lineWidth = 2; drawCtx.stroke();
+        drawCtx.fillStyle = color; drawCtx.font = 'bold 10px sans-serif'; drawCtx.textAlign = 'left';
+        drawCtx.fillText(label, xs.left + 4, y - 5);
+        drawCtx.restore();
+      };
+      drawHLin(xcTarget, '#6366f1', '琛屾祴鐩爣 ' + xcTarget);
+      drawHLin(slTarget, '#f59e0b', '鐢宠鐩爣 ' + slTarget);
+
+      // Milestone dots
+      const mColors = ['#a855f7', '#ec4899', '#14b8a6', '#f43f5e', '#8b5cf6'];
+      milestones.forEach((m, mi) => {
+        if (m.xingce != null) {
+          const y = ys.getPixelForValue(m.xingce);
+          if (y >= ys.top && y <= ys.bottom) {
+            const xP = xs.getPixelForValue(m.date.slice(5));
+            const x = isNaN(xP) ? xs.right : xP;
+            drawCtx.save(); drawCtx.beginPath(); drawCtx.arc(Math.max(xs.left, x), y, 4, 0, Math.PI*2);
+            drawCtx.fillStyle = mColors[mi % mColors.length]; drawCtx.fill();
+            drawCtx.fillStyle = mColors[mi % mColors.length]; drawCtx.font = '9px sans-serif'; drawCtx.textAlign = 'left';
+            drawCtx.fillText('琛屾祴' + m.xingce, x + 5, y + 3);
+            drawCtx.restore();
+          }
+        }
+        if (m.shenlun != null) {
+          const y = ys.getPixelForValue(m.shenlun);
+          if (y >= ys.top && y <= ys.bottom) {
+            const xP = xs.getPixelForValue(m.date.slice(5));
+            const x = isNaN(xP) ? xs.right : xP;
+            drawCtx.save(); drawCtx.beginPath(); drawCtx.arc(Math.max(xs.left, x), y, 4, 0, Math.PI*2);
+            drawCtx.fillStyle = mColors[(mi+1) % mColors.length]; drawCtx.fill();
+            drawCtx.fillStyle = mColors[(mi+1) % mColors.length]; drawCtx.font = '9px sans-serif'; drawCtx.textAlign = 'left';
+            drawCtx.fillText('鐢宠' + m.shenlun, x + 5, y + 3);
+            drawCtx.restore();
+          }
+        }
+      });
+    }
+  };
+
+  document.getElementById('mkTargetXC').value = xcTarget;
+  document.getElementById('mkTargetSL').value = slTarget;
+
+  charts.mockChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [
+        { label: '琛屾祴', data: xcData, borderColor: '#6366f1', backgroundColor: '#6366f120', tension: 0.3, fill: true, pointRadius: 3, spanGaps: true },
+        { label: '鐢宠', data: slData, borderColor: '#f59e0b', backgroundColor: '#f59e0b20', tension: 0.3, fill: true, pointRadius: 3, spanGaps: true },
+      ]
+    },
+    plugins: [mockOverlay],
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 11 } } } },
+      scales: { y: { min: 0, max: 100, ticks: { stepSize: 10 } } },
+      interaction: { intersect: false, mode: 'index' }
+    }
+  });
+}
+
+// ==================== REAL EXAMS ====================
+function addRealExam() {
+  const data = load();
+  const name = document.getElementById('reName').value.trim();
+  const score = parseFloat(document.getElementById('reScore').value);
+  const date = document.getElementById('reDate').value || today();
+  if (date > today()) { toast('涓嶈兘濉啓鏈潵鏃ユ湡', 'err'); return; }
+  if (!name) { toast('璇疯緭鍏ヨ瘯鍗峰悕绉?, 'err'); return; }
+  if (isNaN(score)) { toast('璇疯緭鍏ュ垎鏁?, 'err'); return; }
+  data.realExams.push({
+    id: uid(),
+    date,
+    name,
+    type: document.getElementById('reType').value,
+    score
+  });
+  data.realExams.sort((a,b) => a.date.localeCompare(b.date));
+  save(data);
+  document.getElementById('reDate').value = ''; document.getElementById('reName').value = ''; document.getElementById('reScore').value = '';
+  renderAll(); toast('鐪熼鎴愮哗宸叉坊鍔?鉁?);
+}
+
+function deleteRealExam(id) {
+  if (!confirm('鍒犻櫎杩欐潯鐪熼璁板綍锛?)) return;
+  const data = load();
+  data.realExams = data.realExams.filter(e => e.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function renderRealExams(data) {
+  const list = document.getElementById('realExamList');
+  if (data.realExams.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = data.realExams.map(e => `
+    <div class="exam-score-row">
+      <span>馃搮 ${fmt(e.date)}</span>
+      <span>${esc(e.name)} <span style="font-size:0.7rem;color:var(--text2)">[${e.type}]</span></span>
+      <span class="score">${e.score}</span>
+      <button class="btn-ghost" onclick="deleteRealExam('${e.id}')" style="font-size:0.75rem;color:var(--danger)">馃棏</button>
+    </div>
+  `).join('');
+
+  killChart('realChart');
+  if (data.realExams.length < 2) return;
+  // Separate by type for chart
+  const xc = data.realExams.filter(e => e.type === '琛屾祴');
+  const sl = data.realExams.filter(e => e.type === '鐢宠');
+  const datasets = [];
+  if (xc.length >= 2) datasets.push({ label: '琛屾祴', data: xc.map(e => e.score), borderColor: '#6366f1', backgroundColor: '#6366f120', tension: 0.3, fill: true, pointRadius: 3 });
+  if (sl.length >= 2) datasets.push({ label: '鐢宠', data: sl.map(e => e.score), borderColor: '#f59e0b', backgroundColor: '#f59e0b20', tension: 0.3, fill: true, pointRadius: 3 });
+
+  if (datasets.length === 0) return;
+  const allLabels = data.realExams.map(e => `${e.date.slice(5)}\n${e.name.slice(0,6)}`);
+
+  const ctx = document.getElementById('realChart');
+  if (!ctx) return;
+  // For mixed types, use a simple index-based chart
+  const xcPoints = data.realExams.filter(e => e.type === '琛屾祴');
+  const slPoints = data.realExams.filter(e => e.type === '鐢宠');
+
+  const ds = [];
+  if (xcPoints.length >= 2) {
+    ds.push({
+      label: '琛屾祴', data: data.realExams.map(e => e.type === '琛屾祴' ? e.score : null),
+      borderColor: '#6366f1', backgroundColor: '#6366f120', tension: 0.3, fill: true,
+      pointRadius: 3, spanGaps: false
+    });
+  }
+  if (slPoints.length >= 2) {
+    ds.push({
+      label: '鐢宠', data: data.realExams.map(e => e.type === '鐢宠' ? e.score : null),
+      borderColor: '#f59e0b', backgroundColor: '#f59e0b20', tension: 0.3, fill: true,
+      pointRadius: 3, spanGaps: false
+    });
+  }
+  if (ds.length === 0) return;
+
+  charts.realChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: allLabels, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 11 } } } },
+      scales: { y: { min: 0, max: 100, ticks: { stepSize: 10 } }, x: { ticks: { font: { size: 9 } } } },
+      interaction: { intersect: false, mode: 'index' }
+    }
+  });
+}
+
+// ==================== WORKBOOKS ====================
+function showAddWorkbook() { document.getElementById('wbModal').style.display = 'flex'; }
+function closeWbModal() { document.getElementById('wbModal').style.display = 'none'; }
+
+function saveWorkbook(e) {
+  e.preventDefault();
+  const data = load();
+  const wb = {
+    id: uid(),
+    name: document.getElementById('wbName').value.trim(),
+    totalChapters: parseInt(document.getElementById('wbTotal').value) || 10,
+    completed: []
+  };
+  if (!wb.name) return;
+  data.workbooks.push(wb);
+  save(data); closeWbModal(); renderAll();
+  document.getElementById('wbName').value = ''; document.getElementById('wbTotal').value = '10';
+  toast('涔犻鍐屽凡娣诲姞 鉁?);
+}
+
+function toggleChapter(wbId, ch) {
+  const data = load();
+  const wb = data.workbooks.find(w => w.id === wbId);
+  if (!wb) return;
+  if (wb.completed.includes(ch)) {
+    wb.completed = wb.completed.filter(c => c !== ch);
+  } else {
+    wb.completed.push(ch);
+  }
+  save(data); renderAll();
+}
+
+function deleteWorkbook(id) {
+  if (!confirm('鍒犻櫎杩欎釜涔犻鍐岋紵')) return;
+  const data = load();
+  data.workbooks = data.workbooks.filter(w => w.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function renderWorkbooks(data) {
+  const list = document.getElementById('workbookList');
+  if (data.workbooks.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="icon">馃摉</div><p>鏆傛棤涔犻鍐岋紝鐐瑰嚮涓婃柟鎸夐挳娣诲姞</p></div>';
+    return;
+  }
+  list.innerHTML = data.workbooks.map(wb => {
+    const done = wb.completed.length;
+    const pct = Math.round(done / wb.totalChapters * 100);
+    let dots = '';
+    for (let i = 1; i <= wb.totalChapters; i++) {
+      dots += `<span class="chapter-dot ${wb.completed.includes(i) ? 'done' : ''}" onclick="toggleChapter('${wb.id}', ${i})" title="绗?{i}绔?>${i}</span>`;
+    }
+    return `
+      <div class="wb-card">
+        <div class="wb-header">
+          <h4>${esc(wb.name)}</h4>
+          <button class="btn-ghost" onclick="deleteWorkbook('${wb.id}')" style="font-size:0.75rem;color:var(--danger)">馃棏</button>
+        </div>
+        <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div>
+        <div class="wb-info"><span>${done} / ${wb.totalChapters} 绔?/span><span>${pct}%</span></div>
+        <div class="chapter-dots">${dots}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ==================== WEIGHT ====================
+function addWeight() {
+  const data = load();
+  const w = parseFloat(document.getElementById('weightInput').value);
+  if (isNaN(w) || w <= 0) { toast('璇疯緭鍏ユ湁鏁堜綋閲?, 'err'); return; }
+  const dateStr = document.getElementById('weightDate').value || today();
+  if (dateStr > today()) { toast('涓嶈兘濉啓鏈潵鏃ユ湡', 'err'); return; }
+  const existing = data.weightLogs.findIndex(l => l.date === dateStr);
+  const entry = { id: uid(), date: dateStr, weight: w };
+  if (existing >= 0) {
+    data.weightLogs[existing] = entry;
+  } else {
+    data.weightLogs.push(entry);
+  }
+  data.weightLogs.sort((a,b) => a.date.localeCompare(b.date));
+  save(data);
+  document.getElementById('weightInput').value = '';
+  renderAll();
+  toast(`宸茶褰?${w} 鏂?鉁揱);
+}
+
+function deleteWeight(id) {
+  if (!confirm('鍒犻櫎杩欐潯浣撻噸璁板綍锛?)) return;
+  const data = load();
+  data.weightLogs = data.weightLogs.filter(l => l.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function updateTarget() {
+  const data = load();
+  const v = parseFloat(document.getElementById('targetWeightInput').value);
+  if (!isNaN(v) && v > 0) { data.targetWeight = v; save(data); renderAll(); toast(`鐩爣宸叉洿鏂颁负 ${v} 鏂?鉁揱); }
+}
+function updateDeadline() {
+  const data = load();
+  data.weightDeadline = document.getElementById('weightDeadlineInput').value || null;
+  save(data); toast(data.weightDeadline ? `鎴鏃ユ湡宸茶涓?${data.weightDeadline} 鉁揱 : '宸叉竻闄ゆ埅姝㈡棩鏈?);
+}
+
+function showAddMilestone() {
+  document.getElementById('addMilestoneForm').style.display = 'block';
+  document.getElementById('msDate').value = '';
+  document.getElementById('msWeight').value = '';
+}
+function addMilestone() {
+  const data = load();
+  const date = document.getElementById('msDate').value;
+  const weight = parseFloat(document.getElementById('msWeight').value);
+  if (!date) { toast('璇烽€夋嫨鏃ユ湡', 'err'); return; }
+  if (isNaN(weight) || weight <= 0) { toast('璇疯緭鍏ユ湁鏁堜綋閲?, 'err'); return; }
+  data.weightMilestones.push({ id: uid(), date, weight });
+  data.weightMilestones.sort((a, b) => a.date.localeCompare(b.date));
+  save(data);
+  document.getElementById('addMilestoneForm').style.display = 'none';
+  renderAll();
+  toast(`宸叉坊鍔犻樁娈垫€х洰鏍?鉁揱);
+}
+function deleteMilestone(id) {
+  const data = load();
+  data.weightMilestones = data.weightMilestones.filter(m => m.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function toggleGoalPanel() {
+  const p = document.getElementById('goalPanel');
+  const btn = document.getElementById('goalToggleBtn');
+  if (p.style.display === 'none' || !p.style.display) {
+    p.style.display = 'block'; btn.textContent = '鉁?鏀惰捣';
+    btn.style.background = 'var(--primary)'; btn.style.color = '#fff';
+  } else {
+    p.style.display = 'none'; btn.textContent = '鈿欙笍 鐩爣璁剧疆';
+    btn.style.background = ''; btn.style.color = '';
+  }
+}
+
+function renderWeight(data) {
+  const logs = data.weightLogs;
+  const latest = logs.length > 0 ? logs[logs.length - 1] : null;
+  const target = data.targetWeight || 170;
+
+  document.getElementById('targetWeightInput').value = target;
+  document.getElementById('weightDeadlineInput').value = data.weightDeadline || '';
+  document.getElementById('weightDate').value = today();
+
+  document.getElementById('currentWeight').innerHTML = latest
+    ? `${latest.weight}<span class="unit">鏂?/span>`
+    : '--<span class="unit">鏂?/span>';
+
+  const toGoEl = document.getElementById('weightToGo');
+  if (latest) {
+    const diff = latest.weight - target;
+    const daysLeft = data.weightDeadline ? Math.ceil((new Date(data.weightDeadline) - new Date()) / 86400000) : null;
+    const deadlineText = daysLeft !== null ? (daysLeft > 0 ? ` 路 杩樻湁 ${daysLeft} 澶ー : daysLeft === 0 ? ' 路 浠婂ぉ鎴' : ' 路 宸茶秴鏈?) : '';
+    if (diff > 0) {
+      const weeklyNeed = daysLeft && daysLeft > 0 ? (diff / Math.max(1, Math.ceil(daysLeft / 7))).toFixed(1) : '';
+      toGoEl.innerHTML = `<span class="weight-to-go lose">杩橀渶鍑?${diff.toFixed(1)} 鏂?{deadlineText}${weeklyNeed ? '<br><span style="font-size:0.75rem">绾﹂渶姣忓懆鍑?' + weeklyNeed + ' 鏂?/span>' : ''}</span>`;
+    } else if (diff < 0) {
+      toGoEl.innerHTML = `<span class="weight-to-go win">馃帀 宸蹭綆浜庣洰鏍?${Math.abs(diff).toFixed(1)} 鏂?/span>`;
+    } else {
+      toGoEl.innerHTML = `<span class="weight-to-go win">馃帀 宸茶揪鍒扮洰鏍囷紒</span>`;
+    }
+  } else {
+    toGoEl.innerHTML = '';
+  }
+
+  // Render milestones
+  const milestones = data.weightMilestones || [];
+  const msList = document.getElementById('milestoneList');
+  if (milestones.length === 0) {
+    msList.innerHTML = '<div style="text-align:center;color:var(--text2);padding:4px">鏆傛棤闃舵鎬х洰鏍?/div>';
+  } else {
+    msList.innerHTML = milestones.map(m => {
+      const done = latest && latest.weight <= m.weight;
+      const icon = done ? '鉁? : '鈴?;
+      const mDate = new Date(m.date);
+      const nowDate = new Date();
+      const daysRemain = Math.ceil((mDate - nowDate) / 86400000);
+      let info = '';
+      if (done) {
+        info = '<span style="color:#10b981;font-weight:600">宸插畬鎴?馃帀</span>';
+      } else if (latest) {
+        const need = latest.weight - m.weight;
+        const daysLeftStr = daysRemain > 0 ? `${daysRemain}澶ー : daysRemain === 0 ? '浠婂ぉ' : '瓒呮湡';
+        info = `<span style="color:var(--danger)">杩橀渶鍑?${need.toFixed(1)} 鏂?/span> 路 <span style="color:var(--text2)">${daysLeftStr}</span>`;
+      } else {
+        info = `<span style="color:var(--text2)">${daysRemain > 0 ? daysRemain+'澶╁悗' : '宸茶繃鏈?}</span>`;
+      }
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #f3f4f6">
+          <span>${icon} <b>${m.weight}鏂?/b> <span style="color:var(--text2);font-size:0.72rem">${fmt(m.date)}</span></span>
+          <span>${info}<button onclick="deleteMilestone('${m.id}')" style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:0.7rem">馃棏</button></span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Week/Month change
+  const now = new Date();
+  const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+  const weekAgoStr = weekAgo.toISOString().split('T')[0];
+  const monthAgo = new Date(now); monthAgo.setMonth(now.getMonth() - 1);
+  const monthAgoStr = monthAgo.toISOString().split('T')[0];
+
+  const weekLogs = logs.filter(l => l.date >= weekAgoStr);
+  const monthLogs = logs.filter(l => l.date >= monthAgoStr);
+
+  const weekFirst = weekLogs[0];
+  const monthFirst = monthLogs[0];
+
+  if (latest && weekFirst && weekFirst !== latest) {
+    const wc = weekFirst.weight - latest.weight;
+    document.getElementById('weightWeekChange').innerHTML = wc > 0 ? `鏈懆鍑忎簡 ${wc.toFixed(1)} 鏂?馃搲` : wc < 0 ? `鏈懆澧炰簡 ${Math.abs(wc).toFixed(1)} 鏂 : '鏈懆鎸佸钩';
+  } else {
+    document.getElementById('weightWeekChange').textContent = '鏈懆 --';
+  }
+  if (latest && monthFirst && monthFirst !== latest) {
+    const mc = monthFirst.weight - latest.weight;
+    document.getElementById('weightMonthChange').innerHTML = mc > 0 ? `鏈湀鍑忎簡 ${mc.toFixed(1)} 鏂?馃搲` : mc < 0 ? `鏈湀澧炰簡 ${Math.abs(mc).toFixed(1)} 鏂 : '鏈湀鎸佸钩';
+  } else {
+    document.getElementById('weightMonthChange').textContent = '鏈湀 --';
+  }
+
+  // History
+  const history = document.getElementById('weightHistory');
+  if (logs.length === 0) {
+    history.innerHTML = '<div class="empty"><p>鏆傛棤璁板綍</p></div>';
+  } else {
+    const reversed = [...logs].reverse();
+    history.innerHTML = reversed.map((l, i) => {
+      const prev = reversed[i + 1];
+      let change = '';
+      if (prev) {
+        const diff = l.weight - prev.weight;
+        if (diff !== 0) {
+          const cls = diff < 0 ? 'down' : 'up';
+          const sign = diff > 0 ? '+' : '';
+          change = `<span class="w-change ${cls}">${sign}${diff.toFixed(1)}</span>`;
+        }
+      }
+      return `
+        <div class="weight-row">
+          <span>馃搮 ${fmt(l.date)}</span>
+          <span><b>${l.weight}</b> 鏂?/span>
+          ${change}
+          <button class="btn-ghost" onclick="deleteWeight('${l.id}')" style="font-size:0.7rem;color:var(--danger)">馃棏</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Chart
+  killChart('weightChart');
+  if (logs.length < 2) return;
+  const ctx = document.getElementById('weightChart');
+  if (!ctx) return;
+
+  // Merge weight log dates + milestone dates into X-axis labels
+  const allDates = new Map();
+  logs.forEach(l => allDates.set(l.date, l.weight));
+  milestones.forEach(m => { if (!allDates.has(m.date)) allDates.set(m.date, null); });
+  const sortedDates = [...allDates.keys()].sort();
+  const chartLabels = sortedDates.map(d => d.slice(5)); // MM-DD
+  const chartData = sortedDates.map(d => allDates.get(d)); // weight or null
+
+  // Compute Y range to include target + milestones
+  const allWeights = [...logs.map(l => l.weight), target];
+  milestones.forEach(m => allWeights.push(m.weight));
+  const minW = Math.min(...allWeights) - 3;
+  const maxW = Math.max(...allWeights) + 3;
+
+  const weightOverlay = {
+    id: 'weightOverlay',
+    afterDraw(chart) {
+      const ys = chart.scales.y, xs = chart.scales.x;
+      if (!ys || !xs || ys.top === ys.bottom) return;
+      const drawCtx = chart.ctx;
+
+      // Target line (green dashed)
+      const targetY = ys.getPixelForValue(target);
+      if (targetY >= ys.top && targetY <= ys.bottom) {
+        drawCtx.save();
+        drawCtx.beginPath();
+        drawCtx.setLineDash([6, 4]);
+        drawCtx.moveTo(xs.left, targetY);
+        drawCtx.lineTo(xs.right, targetY);
+        drawCtx.strokeStyle = '#10b981';
+        drawCtx.lineWidth = 2.5;
+        drawCtx.stroke();
+        drawCtx.fillStyle = '#10b981';
+        drawCtx.font = 'bold 11px sans-serif';
+        drawCtx.textAlign = 'right';
+        drawCtx.fillText('鐩爣 ' + target, xs.right - 4, targetY - 6);
+        drawCtx.restore();
+      }
+
+      // Milestone lines
+      const colors = ['#f59e0b', '#f97316', '#eab308', '#d97706', '#ca8a04'];
+      milestones.forEach((m, mi) => {
+        const msY = ys.getPixelForValue(m.weight);
+        if (msY < ys.top || msY > ys.bottom) return;
+        const dLabel = m.date.slice(5);
+        // Category scale: pass label string directly, not numeric index
+        let xPos = xs.getPixelForValue(dLabel);
+        if (isNaN(xPos) || xPos < xs.left) xPos = xs.right;
+        const color = colors[mi % colors.length];
+        drawCtx.save();
+        drawCtx.beginPath();
+        drawCtx.setLineDash([3, 5]);
+        drawCtx.moveTo(Math.max(xs.left, xPos), msY);
+        drawCtx.lineTo(xs.right, msY);
+        drawCtx.strokeStyle = color; drawCtx.lineWidth = 1.5; drawCtx.stroke();
+        drawCtx.fillStyle = color; drawCtx.font = '10px sans-serif'; drawCtx.textAlign = 'right';
+        drawCtx.fillText(m.weight + '  ' + fmt(m.date), xs.right - 4, msY - 4);
+        drawCtx.beginPath(); drawCtx.arc(Math.max(xs.left, xPos), msY, 3, 0, Math.PI * 2); drawCtx.fillStyle = color; drawCtx.fill();
+        drawCtx.restore();
+      });
+    }
+  };
+
+  charts.weightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: '浣撻噸 (鏂?',
+        data: chartData,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.1)',
+        tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2.5, spanGaps: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => c.raw + ' 鏂? } }
+      },
+      scales: { y: { min: minW, max: maxW, ticks: { callback: v => v + ' 鏂? } } },
+      interaction: { intersect: false, mode: 'index' }
+    },
+    plugins: [weightOverlay]
+  });
+}
+
+// ==================== HABITS ====================
+function showAddHabit() { document.getElementById('habitModal').style.display = 'flex'; document.getElementById('habitName').value = ''; }
+function closeHabitModal() { document.getElementById('habitModal').style.display = 'none'; }
+
+function addHabit(e) {
+  e.preventDefault();
+  const data = load();
+  const name = document.getElementById('habitName').value.trim();
+  if (!name) return;
+  data.habits.push({ id: uid(), name });
+  save(data); closeHabitModal(); renderAll();
+  toast(`宸叉坊鍔犮€?{name}銆嶁湏`);
+}
+
+function deleteHabit(id) {
+  const data = load();
+  const h = data.habits.find(x => x.id === id);
+  if (!h || !confirm(`鍒犻櫎涔犳儻銆?{h.name}銆嶅強鍏舵墍鏈夋墦鍗¤褰曪紵`)) return;
+  data.habits = data.habits.filter(x => x.id !== id);
+  delete data.habitEntries[id];
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function toggleHabit(habitId, dateStr) {
+  const data = load();
+  if (!data.habitEntries[habitId]) data.habitEntries[habitId] = [];
+  const entries = data.habitEntries[habitId];
+  const idx = entries.findIndex(e => e.date === dateStr);
+  if (idx >= 0) {
+    entries.splice(idx, 1);
+  } else {
+    entries.push({ date: dateStr, done: true });
+  }
+  save(data); renderHabits(data);
+}
+
+function getStreak(entries) {
+  if (!entries || entries.length === 0) return 0;
+  const doneSet = new Set(entries.map(e => e.date));
+  let check = new Date(today());
+  if (!doneSet.has(today())) check.setDate(check.getDate() - 1);
+  let s = 0;
+  while (doneSet.has(check.toISOString().split('T')[0])) { s++; check.setDate(check.getDate() - 1); }
+  return s;
+}
+
+function getWeekDone(entries) {
+  const now = new Date();
+  const dow = now.getDay();
+  const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  return (entries||[]).filter(e => e.date >= mon.toISOString().split('T')[0] && e.date <= sun.toISOString().split('T')[0]).length;
+}
+
+function getMonthDone(entries) {
+  const now = new Date();
+  const start = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  return (entries||[]).filter(e => e.date >= start).length;
+}
+
+function renderHabits(data) {
+  const grid = document.getElementById('habitGrid');
+  if (!data.habits || data.habits.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">鉁?/div><h3>杩樻病鏈変範鎯?/h3><p>鐐瑰嚮涓婃柟銆屾柊澧炰範鎯€嶅紑濮?/p></div>';
+    return;
+  }
+  grid.innerHTML = data.habits.map(h => {
+    const entries = data.habitEntries[h.id] || [];
+    const streak = getStreak(entries);
+    const weekDone = getWeekDone(entries);
+    const monthDone = getMonthDone(entries);
+    const doneSet = new Set(entries.map(e => e.date));
+    const t = today();
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    const dim = new Date(y, m+1, 0).getDate();
+    const fd = new Date(y, m, 1).getDay();
+
+    let cal = '<div class="habit-calendar">';
+    cal += '<div class="habit-w-row">' + ['鏃?,'涓€','浜?,'涓?,'鍥?,'浜?,'鍏?].map(d => `<div class="habit-d-header">${d}</div>`).join('') + '</div>';
+    let d = 0;
+    const tc = Math.ceil((fd + dim) / 7) * 7;
+    for (let i = 0; i < tc; i++) {
+      if (i % 7 === 0) cal += '<div class="habit-w-row">';
+      if (i < fd || d >= dim) {
+        cal += '<div class="habit-day" style="visibility:hidden"></div>';
+      } else {
+        d++;
+        const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isDone = doneSet.has(ds), isToday = ds === t, isFuture = ds > t;
+        cal += `<div class="habit-day${isDone?' done':''}${isToday?' today':''}${isFuture?' future':''}" ${isFuture?'':'onclick="toggleHabit(\''+h.id+'\',\''+ds+'\')"'} title="${ds}">${d}</div>`;
+      }
+      if (i % 7 === 6) cal += '</div>';
+    }
+    cal += '</div>';
+
+    return `
+      <div class="card habit-card">
+        <h3 style="margin-bottom:4px;display:flex;justify-content:center;align-items:center;gap:6px">
+          ${esc(h.name)}
+          <button class="btn-ghost" onclick="deleteHabit('${h.id}')" style="font-size:0.7rem;color:var(--danger);padding:2px 6px" title="鍒犻櫎涔犳儻">鉁?/button>
+        </h3>
+        <div class="habit-stats">
+          <div class="habit-stat"><div class="hs-val">${streak}</div><div class="hs-label">杩炵画 馃敟</div></div>
+          <div class="habit-stat"><div class="hs-val">${weekDone}/7</div><div class="hs-label">鏈懆</div></div>
+          <div class="habit-stat"><div class="hs-val">${monthDone}</div><div class="hs-label">鏈湀</div></div>
+        </div>
+        ${cal}
+      </div>
+    `;
+  }).join('');
+}
+
+// ==================== FINANCE ====================
+function addExpense() {
+  const data = load();
+  const amount = parseFloat(document.getElementById('fxAmount').value);
+  if (isNaN(amount) || amount <= 0) { toast('璇疯緭鍏ユ湁鏁堥噾棰?, 'err'); return; }
+  const date = document.getElementById('fxDate').value || today();
+  if (date > today()) { toast('涓嶈兘濉啓鏈潵鏃ユ湡', 'err'); return; }
+  data.expenses.push({
+    id: uid(),
+    date,
+    amount,
+    category: document.getElementById('fxCategory').value,
+    note: document.getElementById('fxNote').value.trim()
+  });
+  data.expenses.sort((a,b) => b.date.localeCompare(a.date));
+  save(data);
+  document.getElementById('fxAmount').value = '';
+  document.getElementById('fxNote').value = '';
+  renderAll();
+  toast(`宸茶褰?楼${amount.toFixed(2)} 鉁揱);
+}
+
+function deleteExpense(id) {
+  if (!confirm('鍒犻櫎杩欐潯璁板綍锛?)) return;
+  const data = load();
+  data.expenses = data.expenses.filter(e => e.id !== id);
+  save(data); renderAll(); toast('宸插垹闄?);
+}
+
+function renderFinance(data) {
+  const t = today();
+  const now = new Date();
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  document.getElementById('fxDate').value = t;
+
+  const todayExp = data.expenses.filter(e => e.date === t).reduce((s,e) => s + e.amount, 0);
+  const monthExp = data.expenses.filter(e => e.date >= monthStart);
+  const monthTotal = monthExp.reduce((s,e) => s + e.amount, 0);
+  const daysInMonth = now.getDate();
+  const avg = daysInMonth > 0 ? monthTotal / daysInMonth : 0;
+
+  document.getElementById('fxToday').textContent = '楼' + todayExp.toFixed(0);
+  document.getElementById('fxMonth').textContent = '楼' + monthTotal.toFixed(0);
+  document.getElementById('fxAvg').textContent = '楼' + avg.toFixed(0);
+
+  // Category breakdown
+  const catMap = {};
+  monthExp.forEach(e => { catMap[e.category] = (catMap[e.category] || 0) + e.amount; });
+  const sorted = Object.entries(catMap).sort((a,b) => b[1] - a[1]);
+  document.getElementById('fxCategoryBreakdown').innerHTML = sorted.length > 0
+    ? sorted.map(([cat, amt]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f3f4f6"><span>${cat}</span><span style="font-weight:700">楼${amt.toFixed(0)}</span><span style="color:var(--text2);font-size:0.75rem">${monthTotal>0?Math.round(amt/monthTotal*100):0}%</span></div>`).join('')
+    : '<div style="text-align:center;color:var(--text2);padding:12px">鏈湀鏆傛棤娑堣垂璁板綍</div>';
+
+  // Doughnut chart
+  killChart('categoryChart');
+  if (sorted.length === 0) return;
+  const ctx = document.getElementById('categoryChart');
+  if (!ctx) return;
+  const colors = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#ec4899','#f97316','#14b8a6','#64748b','#e11d48'];
+  charts.categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(s => s[0]),
+      datasets: [{ data: sorted.map(s => s[1]), backgroundColor: colors.slice(0,sorted.length), borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ctx.label + ': 楼' + ctx.raw.toFixed(2) } }
+      }
+    }
+  });
+
+  // History list
+  const list = document.getElementById('expenseList');
+  document.getElementById('fxTotalCount').textContent = `${data.expenses.length} 鏉;
+  if (data.expenses.length === 0) {
+    list.innerHTML = '<div class="empty"><p style="padding:20px">鏆傛棤娑堣垂璁板綍</p></div>';
+    return;
+  }
+  list.innerHTML = data.expenses.slice(0, 100).map(e => `
+    <div class="log-item">
+      <div class="log-meta">
+        <span class="log-date">馃搮 ${fmt(e.date)}</span>
+        <span class="log-hours" style="background:#fef2f2;color:var(--danger)">楼${e.amount.toFixed(2)}</span>
+        <button class="log-del" onclick="deleteExpense('${e.id}')">馃棏</button>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text2)">${e.category}${e.note ? ' 路 ' + esc(e.note) : ''}</div>
+    </div>
+  `).join('');
+}
+
+// ==================== RENDER ALL ====================
+function renderAll() {
+  const data = load();
+  setDateMax();
+  document.getElementById('slDate').value = today();
+  renderStudyLogs(data);
+  renderMockExams(data);
+  renderRealExams(data);
+  renderWorkbooks(data);
+  renderWeight(data);
+  renderHabits(data);
+  renderFinance(data);
+}
+
+// ==================== TABS ====================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const panelId = 'panel' + this.dataset.tab.charAt(0).toUpperCase() + this.dataset.tab.slice(1);
+    document.getElementById(panelId).classList.add('active');
+    // Re-render; resize chart if it exists
+    renderAll();
+    setTimeout(() => {
+      if (charts.weightChart) charts.weightChart.resize();
+    }, 150);
+  });
+});
+
+// ==================== MODAL CLOSE ====================
+document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none'; });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); });
+
+// ==================== EXPORT/IMPORT ====================
+function exportData() {
+  const d = load();
+  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `涓汉璁板綍澶囦唤_${today()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast('鏁版嵁宸插鍑?鉁?);
+}
+
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!confirm('瀵煎叆灏嗚鐩栧綋鍓嶆墍鏈夋暟鎹紝纭畾缁х画锛?)) return;
+      save({ ...DEFAULT, ...imported });
+      renderAll();
+      toast('鏁版嵁宸插鍏?鉁?);
+    } catch { toast('鏂囦欢鏍煎紡涓嶆纭?, 'err'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetAll() {
+  if (!confirm('纭畾娓呯┖鎵€鏈夋暟鎹悧锛熷缓璁厛瀵煎嚭澶囦唤锛?)) return;
+  save({ ...DEFAULT });
+  renderAll();
+  toast('鏁版嵁宸叉竻绌?, 'err');
+}
+
+function esc(s) { if (!s) return ''; const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
+
+function setDateMax() {
+  const t = today();
+  document.querySelectorAll('input[type="date"]').forEach(el => {
+    // Allow future dates for milestones and deadlines
+    if (el.id === 'msDate' || el.id === 'weightDeadlineInput' || el.id === 'mkMsDate') return;
+    el.max = t;
+  });
+}
+
+// ==================== INIT ====================
+function updateClock() {
+  const now = new Date();
+  const weekDays = ['鍛ㄦ棩','鍛ㄤ竴','鍛ㄤ簩','鍛ㄤ笁','鍛ㄥ洓','鍛ㄤ簲','鍛ㄥ叚'];
+  const str = `${now.getFullYear()}骞?{now.getMonth()+1}鏈?{now.getDate()}鏃?${weekDays[now.getDay()]} ${now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+  const el = document.getElementById('liveClock');
+  if (el) el.textContent = str;
+}
+updateClock();
+setInterval(updateClock, 1000);
+setDateMax();
+renderAll();
+</script>
+</body>
+</html>
