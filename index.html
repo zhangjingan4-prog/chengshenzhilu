@@ -386,8 +386,8 @@ body {
           <div class="card-header"><h2>馃搳 绮夌瑪妯¤€?/h2><span style="font-size:0.78rem;color:var(--text2)">姣忓懆鏃ヤ笂鍗?/span></div>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
             <span style="font-size:0.75rem;color:var(--text2)">鐩爣:</span>
-            <span style="font-size:0.75rem;color:var(--primary)">琛屾祴</span><input type="number" id="mkTargetXC" value="70" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
-            <span style="font-size:0.75rem;color:#f59e0b">鐢宠</span><input type="number" id="mkTargetSL" value="65" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
+            <span style="font-size:0.75rem;color:var(--primary)">琛屾祴</span><input type="number" id="mkTargetXC" value="84" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
+            <span style="font-size:0.75rem;color:#f59e0b">鐢宠</span><input type="number" id="mkTargetSL" value="76" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
           </div>
           <div id="mkMilestoneAdd" style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
             <input type="date" id="mkMsDate" style="padding:4px 8px;font-size:0.75rem;min-width:115px">
@@ -637,8 +637,8 @@ const KEY = 'personal-tracker';
 const DEFAULT = {
   studyLogs: [],
   mockExams: [],
-  mockTargetXC: 70,
-  mockTargetSL: 65,
+  mockTargetXC: 84,
+  mockTargetSL: 76,
   mockMilestones: [],
   realExams: [],
   workbooks: [],
@@ -728,8 +728,8 @@ function renderStudyLogs(data) {
 // ==================== MOCK EXAMS ====================
 function saveMockTargets() {
   const data = load();
-  data.mockTargetXC = parseFloat(document.getElementById('mkTargetXC').value) || 70;
-  data.mockTargetSL = parseFloat(document.getElementById('mkTargetSL').value) || 65;
+  data.mockTargetXC = parseFloat(document.getElementById('mkTargetXC').value) || 84;
+  data.mockTargetSL = parseFloat(document.getElementById('mkTargetSL').value) || 76;
   save(data);
   renderMockExams(data);
 }
@@ -804,8 +804,8 @@ function renderMockExams(data) {
   if (data.mockExams.length < 2) return;
   const ctx = document.getElementById('mockChart');
   if (!ctx) return;
-  const xcTarget = data.mockTargetXC || 70;
-  const slTarget = data.mockTargetSL || 65;
+  const xcTarget = data.mockTargetXC || 84;
+  const slTarget = data.mockTargetSL || 76;
 
   // Merge milestone dates into X-axis
   const allMkDates = new Map();
