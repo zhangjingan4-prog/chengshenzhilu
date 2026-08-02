@@ -251,6 +251,35 @@ body {
 .expand-toggle:hover { text-decoration: underline; }
 .collapsed-content { display: none; }
 .collapsed-content.show { display: block; }
+
+/* Countdown Cards */
+.countdown-card {
+  background: var(--card-bg); border-radius: var(--radius);
+  padding: 14px 18px; box-shadow: var(--shadow);
+  min-width: 180px; flex: 1 1 auto; max-width: 260px;
+  border-left: 4px solid var(--primary);
+  position: relative;
+}
+.countdown-card.past { border-left-color: var(--text2); opacity: 0.7; }
+.countdown-card.urgent { border-left-color: var(--warning); animation: pulse-warn 2s infinite; }
+.countdown-card.critical { border-left-color: var(--danger); animation: pulse-crit 1.5s infinite; }
+@keyframes pulse-warn { 0%,100%{box-shadow:0 1px 3px rgba(0,0,0,0.06)} 50%{box-shadow:0 0 12px rgba(245,158,11,0.3)} }
+@keyframes pulse-crit { 0%,100%{box-shadow:0 1px 3px rgba(0,0,0,0.06)} 50%{box-shadow:0 0 14px rgba(239,68,68,0.35)} }
+.countdown-card .cd-name { font-weight:700; font-size:0.88rem; margin-bottom:2px; }
+.countdown-card .cd-date { font-size:0.7rem; color:var(--text2); margin-bottom:8px; }
+.countdown-card .cd-num { font-size:2rem; font-weight:800; line-height:1.1; }
+.countdown-card .cd-label { font-size:0.7rem; color:var(--text2); margin-top:2px; }
+.countdown-card .cd-delete {
+  position: absolute; top: 6px; right: 10px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text2); font-size:0.75rem; opacity:0.5;
+}
+.countdown-card .cd-delete:hover { opacity:1; color:var(--danger); }
+.btn-accent {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: #fff; font-weight:600;
+}
+.btn-accent:hover { opacity: 0.9; }
 </style>
 </head>
 <body>
@@ -263,6 +292,7 @@ body {
       <button class="btn btn-sm" onclick="document.getElementById('importFile').click()">馃摛 瀵煎叆</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
       <button class="btn btn-sm" onclick="resetAll()">馃棏 娓呯┖</button>
+      <button class="btn btn-sm btn-accent" onclick="showCountdownModal()">鈴?鍊掕鏃?/button>
     </div>
   </div>
 </header>
@@ -274,6 +304,9 @@ body {
     <button class="tab-btn" data-tab="habit">鉁?涔犳儻鎵撳崱</button>
     <button class="tab-btn" data-tab="finance">馃挵 璐㈠姟绠＄悊</button>
   </nav>
+
+  <!-- Countdown Ribbon -->
+  <div id="countdownRibbon" style="display:flex;gap:10px;overflow-x:auto;padding:0 0 12px 0;flex-wrap:wrap"></div>
 
   <!-- ========== STUDY TAB ========== -->
   <div class="tab-panel active" id="panelStudy">
@@ -535,6 +568,21 @@ body {
   </div>
 </div>
 
+<!-- Countdown Modal -->
+<div class="modal-overlay" id="countdownModal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">鈴?娣诲姞鍊掕鏃?/div>
+    <form onsubmit="addCountdown(event)">
+      <div class="form-group"><label>鍚嶇О</label><input type="text" id="cdName" placeholder="渚嬪锛氳€冪爺銆佺敓鏃ャ€侀」鐩埅姝? required></div>
+      <div class="form-group"><label>鐩爣鏃ユ湡</label><input type="date" id="cdDate" required style="width:100%"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeCountdownModal()">鍙栨秷</button>
+        <button type="submit" class="btn btn-primary">娣诲姞</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -560,7 +608,8 @@ const DEFAULT = {
     { id: 'no_eat', name: '19鐐瑰悗涓嶈繘椋? }
   ],
   habitEntries: {}, // { habitId: [{date, done}] }
-  expenses: [] // { id, date, amount, category, note }
+  expenses: [] ,// { id, date, amount, category, note }
+  countdowns: [] // { id, name, targetDate }
 };
 
 function load() { try { const r = localStorage.getItem(KEY); return r ? { ...DEFAULT, ...JSON.parse(r) } : { ...DEFAULT }; } catch { return { ...DEFAULT }; } }
@@ -1453,6 +1502,7 @@ function renderAll() {
   renderWeight(data);
   renderHabits(data);
   renderFinance(data);
+  renderCountdowns(data);
 }
 
 // ==================== TABS ====================
@@ -1515,9 +1565,103 @@ function setDateMax() {
   const t = today();
   document.querySelectorAll('input[type="date"]').forEach(el => {
     // Allow future dates for milestones and deadlines
-    if (el.id === 'msDate' || el.id === 'weightDeadlineInput' || el.id === 'mkMsDate') return;
+    if (el.id === 'msDate' || el.id === 'weightDeadlineInput' || el.id === 'mkMsDate' || el.id === 'cdDate') return;
     el.max = t;
   });
+}
+
+// ==================== COUNTDOWN ====================
+function showCountdownModal() {
+  document.getElementById('countdownModal').style.display = 'flex';
+  document.getElementById('cdDate').value = '';
+  document.getElementById('cdName').value = '';
+  document.getElementById('cdName').focus();
+}
+function closeCountdownModal() { document.getElementById('countdownModal').style.display = 'none'; }
+
+function addCountdown(e) {
+  e.preventDefault();
+  const data = load();
+  const name = document.getElementById('cdName').value.trim();
+  const date = document.getElementById('cdDate').value;
+  if (!name || !date) return;
+  data.countdowns.push({ id: uid(), name, targetDate: date });
+  data.countdowns.sort((a,b) => a.targetDate.localeCompare(b.targetDate));
+  save(data);
+  closeCountdownModal();
+  renderCountdowns(data);
+  toast(`宸叉坊鍔犲€掕鏃? ${name} 鉁揱);
+}
+
+function deleteCountdown(id) {
+  if (!confirm('鍒犻櫎杩欎釜鍊掕鏃讹紵')) return;
+  const data = load();
+  data.countdowns = data.countdowns.filter(c => c.id !== id);
+  save(data);
+  renderCountdowns(data);
+}
+
+function renderCountdowns(data) {
+  const ribbon = document.getElementById('countdownRibbon');
+  if (!ribbon) return;
+  data = data || load();
+  const cds = data.countdowns || [];
+  if (cds.length === 0) { ribbon.innerHTML = ''; return; }
+
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const todayMs = now.getTime();
+
+  ribbon.innerHTML = cds.map(c => {
+    const target = new Date(c.targetDate + 'T23:59:59');
+    const targetMs = target.getTime();
+    const totalDays = Math.ceil((targetMs - todayMs) / 86400000);
+    const elapsedDays = totalDays < 0 ? Math.abs(totalDays) : 0;
+    const remainingDays = totalDays >= 0 ? totalDays : 0;
+
+    let cls = '';
+    let num = '';
+    let label = '';
+    let numColor = '';
+
+    if (totalDays < 0) {
+      // Past
+      cls = 'past';
+      num = elapsedDays;
+      label = '澶╁墠宸茶繃';
+      numColor = '#6b7280';
+    } else if (totalDays === 0) {
+      // Today
+      cls = 'critical';
+      num = '浠?;
+      label = '灏辨槸浠婂ぉ锛?;
+      numColor = '#ef4444';
+    } else if (totalDays <= 3) {
+      cls = 'critical';
+      num = remainingDays;
+      label = '澶?鍓╀綑';
+      numColor = '#ef4444';
+    } else if (totalDays <= 14) {
+      cls = 'urgent';
+      num = remainingDays;
+      label = '澶?鍓╀綑';
+      numColor = '#f59e0b';
+    } else {
+      num = remainingDays;
+      label = '澶?鍓╀綑';
+      numColor = '#4f46e5';
+    }
+
+    return `
+      <div class="countdown-card ${cls}">
+        <button class="cd-delete" onclick="deleteCountdown('${c.id}')">鉁?/button>
+        <div class="cd-name">${esc(c.name)}</div>
+        <div class="cd-date">馃搮 ${fmt(c.targetDate)}</div>
+        <div class="cd-num" style="color:${numColor}">${num}</div>
+        <div class="cd-label">${label}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ==================== INIT ====================
