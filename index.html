@@ -386,8 +386,8 @@ body {
           <div class="card-header"><h2>馃搳 绮夌瑪妯¤€?/h2><span style="font-size:0.78rem;color:var(--text2)">姣忓懆鏃ヤ笂鍗?/span></div>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
             <span style="font-size:0.75rem;color:var(--text2)">鐩爣:</span>
-            <span style="font-size:0.75rem;color:var(--primary)">琛屾祴</span><input type="number" id="mkTargetXC" value="84" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
-            <span style="font-size:0.75rem;color:#f59e0b">鐢宠</span><input type="number" id="mkTargetSL" value="76" min="0" max="100" step="1" style="width:60px;padding:3px 6px;font-size:0.75rem" onchange="saveMockTargets()">
+            <span style="font-size:0.85rem;font-weight:800;color:var(--primary)">琛屾祴 84</span>
+            <span style="font-size:0.85rem;font-weight:800;color:#f59e0b">鐢宠 76</span>
           </div>
           <div id="mkMilestoneAdd" style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
             <input type="date" id="mkMsDate" style="padding:4px 8px;font-size:0.75rem;min-width:115px">
@@ -868,9 +868,6 @@ function renderMockExams(data) {
       });
     }
   };
-
-  document.getElementById('mkTargetXC').value = xcTarget;
-  document.getElementById('mkTargetSL').value = slTarget;
 
   charts.mockChart = new Chart(ctx, {
     type: 'line',
