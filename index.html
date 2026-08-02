@@ -291,15 +291,8 @@ body {
 .countdown-card .cd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .countdown-card .cd-name { font-weight: 700; font-size: 0.88rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .countdown-card .cd-date { font-size: 0.68rem; color: var(--text2); padding-left: 14px; margin-bottom: 10px; }
-.countdown-card .cd-num { font-size: 2.4rem; font-weight: 900; line-height: 1; }
-.countdown-card .cd-label { font-size: 0.7rem; color: var(--text2); margin-top: 3px; }
-.countdown-card .cd-bar {
-  margin-top: 10px; height: 4px; border-radius: 2px;
-  background: #f1f5f9; overflow: hidden;
-}
-.countdown-card .cd-bar-fill {
-  height: 100%; border-radius: 2px; transition: width 0.5s;
-}
+.countdown-card .cd-num { font-size: 1.1rem; font-weight: 800; line-height: 1.3; }
+.countdown-card .cd-num b { font-size: 1.8rem; font-weight: 900; }
 .countdown-card .cd-delete {
   position: absolute; top: 8px; right: 12px; z-index: 2;
   background: none; border: none; cursor: pointer;
@@ -1645,7 +1638,6 @@ function deleteCountdown(id) {
 
 function renderCountdowns(data) {
   const ribbon = document.getElementById('countdownRibbon');
-  const sidebar = document.getElementById('countdownSidebar');
   if (!ribbon) return;
   data = data || load();
   const cds = data.countdowns || [];
@@ -1664,50 +1656,42 @@ function renderCountdowns(data) {
     const totalDays = Math.round((targetMs - todayMs) / 86400000);
     const elapsedDays = totalDays < 0 ? Math.abs(totalDays) : 0;
     const remainingDays = totalDays >= 0 ? totalDays : 0;
-    const startMs = targetMs - 90 * 86400000; // 90-day window
-    const pct = totalDays < 0 ? 100 : Math.max(0, Math.min(100, Math.round((todayMs - startMs) / (targetMs - startMs) * 100)));
 
     let cls = '';
-    let num = '';
-    let label = '';
+    let numDisplay = '';
+    let labelDisplay = '';
     let numColor = '';
     let dotColor = '';
-    let barColor = '';
 
     if (totalDays < 0) {
       cls = 'past';
-      num = elapsedDays;
-      label = '澶╁墠';
+      numDisplay = `宸茶繃 ${elapsedDays} 澶ー;
+      labelDisplay = '';
       numColor = '#94a3b8';
       dotColor = '#94a3b8';
-      barColor = '#cbd5e1';
     } else if (totalDays === 0) {
       cls = 'critical';
-      num = '浠婂ぉ';
-      label = '灏辨槸浠婂ぉ锛?;
+      numDisplay = '灏?鏄?浠?澶?锛?;
+      labelDisplay = '';
       numColor = '#ef4444';
       dotColor = '#ef4444';
-      barColor = '#ef4444';
     } else if (totalDays <= 3) {
       cls = 'critical';
-      num = remainingDays;
-      label = '澶?鍓╀綑';
+      numDisplay = `鍓╀綑 <b>${remainingDays}</b> 澶ー;
+      labelDisplay = '';
       numColor = '#ef4444';
       dotColor = '#ef4444';
-      barColor = '#ef4444';
     } else if (totalDays <= 14) {
       cls = 'urgent';
-      num = remainingDays;
-      label = '澶?鍓╀綑';
+      numDisplay = `鍓╀綑 <b>${remainingDays}</b> 澶ー;
+      labelDisplay = '';
       numColor = '#f59e0b';
       dotColor = '#f59e0b';
-      barColor = '#f59e0b';
     } else {
-      num = remainingDays;
-      label = '澶?鍓╀綑';
+      numDisplay = `鍓╀綑 <b>${remainingDays}</b> 澶ー;
+      labelDisplay = '';
       numColor = '#4f46e5';
       dotColor = '#6366f1';
-      barColor = 'linear-gradient(90deg, #818cf8, #6366f1)';
     }
 
     return `
@@ -1718,11 +1702,7 @@ function renderCountdowns(data) {
           <span class="cd-name">${esc(c.name)}</span>
         </div>
         <div class="cd-date">馃搮 ${fmt(c.targetDate)}</div>
-        <div class="cd-num" style="color:${numColor}">${num}</div>
-        <div class="cd-label">${label}</div>
-        <div class="cd-bar">
-          <div class="cd-bar-fill" style="width:${pct}%;background:${barColor}"></div>
-        </div>
+        <div class="cd-num" style="color:${numColor}">${numDisplay}</div>
       </div>
     `;
   }).join('');
