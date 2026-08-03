@@ -1653,43 +1653,37 @@ function renderCountdowns(data) {
   ribbon.innerHTML = cds.map(c => {
     const target = new Date(c.targetDate + 'T23:59:59');
     const targetMs = target.getTime();
-    const totalDays = Math.round((targetMs - todayMs) / 86400000);
+    const totalDays = Math.floor((targetMs - todayMs) / 86400000);
     const elapsedDays = totalDays < 0 ? Math.abs(totalDays) : 0;
     const remainingDays = totalDays >= 0 ? totalDays : 0;
 
     let cls = '';
     let numDisplay = '';
-    let labelDisplay = '';
     let numColor = '';
     let dotColor = '';
 
     if (totalDays < 0) {
       cls = 'past';
       numDisplay = `宸茶繃 ${elapsedDays} 澶ー;
-      labelDisplay = '';
       numColor = '#94a3b8';
       dotColor = '#94a3b8';
     } else if (totalDays === 0) {
       cls = 'critical';
       numDisplay = '灏?鏄?浠?澶?锛?;
-      labelDisplay = '';
       numColor = '#ef4444';
       dotColor = '#ef4444';
     } else if (totalDays <= 3) {
       cls = 'critical';
       numDisplay = `鍓╀綑 <b>${remainingDays}</b> 澶ー;
-      labelDisplay = '';
       numColor = '#ef4444';
       dotColor = '#ef4444';
     } else if (totalDays <= 14) {
       cls = 'urgent';
       numDisplay = `鍓╀綑 <b>${remainingDays}</b> 澶ー;
-      labelDisplay = '';
       numColor = '#f59e0b';
       dotColor = '#f59e0b';
     } else {
       numDisplay = `鍓╀綑 <b>${remainingDays}</b> 澶ー;
-      labelDisplay = '';
       numColor = '#4f46e5';
       dotColor = '#6366f1';
     }
